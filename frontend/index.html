@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>Dompet Harian</title>
+
+  ./css/style.css
+  ./manifest.json
+
+  <meta name="theme-color" content="#111827" />
+</head>
+<body>
+  <main class="app">
+    <header class="app-header">
+      <div>
+        <p class="eyebrow">Offline-first PWA</p>
+        <h1>Dompet Harian</h1>
+      </div>
+
+      <div id="connectionStatus" class="status offline">
+        Offline
+      </div>
+    </header>
+
+    <section class="card summary-card">
+      <p>Total hari ini</p>
+      <h2 id="todayTotal">Rp0</h2>
+    </section>
+
+    <section class="card">
+      <h2 class="section-title">Catat Pengeluaran</h2>
+
+      <form id="expenseForm" class="expense-form">
+        <div class="form-group">
+          <label for="date">Tanggal</label>
+          <input type="date" id="date" required />
+        </div>
+
+        <div class="form-group">
+          <label for="amount">Nominal</label>
+          <input
+            type="number"
+            id="amount"
+            placeholder="Contoh: 25000"
+            min="1"
+            required
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="category">Kategori</label>
+          <select id="category" required>
+            <option value="">Pilih kategori</option>
+            <option value="Makan">Makan</option>
+            <option value="Transport">Transport</option>
+            <option value="Belanja">Belanja</option>
+            <option value="Tagihan">Tagihan</option>
+            <option value="Hiburan">Hiburan</option>
+            <option value="Lainnya">Lainnya</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="note">Catatan</label>
+          <input
+            type="text"
+            id="note"
+            placeholder="Contoh: nasi ayam"
+          />
+        </div>
+
+        <button type="submit" class="primary-button">
+          Simpan Pengeluaran
+        </button>
+      </form>
+    </section>
+
+    <section class="card">
+      <div class="section-header">
+        <h2 class="section-title">Riwayat Hari Ini</h2>
+        <button id="clearTodayButton" class="secondary-button" type="button">
+          Hapus Hari Ini
+        </button>
+      </div>
+
+      <div id="expenseList" class="expense-list">
+        <p class="empty-state">Belum ada transaksi hari ini.</p>
+      </div>
+    </section>
+  </main>
+
+  ./js/db.jsscript>
+  ./js/app.jsscript>
+</body>
+</html>
