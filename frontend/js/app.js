@@ -8,12 +8,17 @@ const todayTotal = document.getElementById("todayTotal");
 const connectionStatus = document.getElementById("connectionStatus");
 const clearTodayButton = document.getElementById("clearTodayButton");
 
+const editingExpenseIdInput = document.getElementById("editingExpenseId");
+const submitButton = document.getElementById("submitButton");
+const cancelEditButton = document.getElementById("cancelEditButton");
+
 const reportMonthInput = document.getElementById("reportMonth");
 const monthlyTotal = document.getElementById("monthlyTotal");
 const monthlyCount = document.getElementById("monthlyCount");
 const categorySummary = document.getElementById("categorySummary");
 const dailyTrend = document.getElementById("dailyTrend");
 const exportCsvButton = document.getElementById("exportCsvButton");
+const monthlyExpenseList = document.getElementById("monthlyExpenseList");
 
 function generateId() {
   if (crypto.randomUUID) {
@@ -60,6 +65,59 @@ function updateConnectionStatus() {
   }
 }
 
+function renderMonthlyExpenseList(expenses) {
+  if (!monthlyExpenseList) {
+    return;
+  }
+
+  if (expenses.length === 0) {
+    monthlyExpenseList.innerHTML = `
+      <p class="empty-state">Belum ada transaksi bulan ini.</p>
+    `;
+    return;
+  }
+
+  const sortedExpenses = [...expenses].sort((a, b) => {
+    return new Date(b.date) - new Date(a.date) || new Date(b.created_at) - new Date(a.created_at);
+  });
+
+  monthlyExpenseList.innerHTML = sortedExpenses.map(renderExpenseCard).join("");
+}
+
+function renderExpenseCard(expense) {
+  const syncedText = expense.synced ? "Tersinkron" : "Belum sinkron";
+
+  return `
+    <article class="expense-item">
+      <div class="expense-main">
+        <div class="expense-category">${escapeHtml(expense.category)}</div>
+
+        <p class="expense-note">
+          ${escapeHtml(expense.note || "Tanpa catatan")}
+        </p>
+
+        <div class="expense-meta">
+          ${escapeHtml(expense.date)} · ${syncedText}
+        </div>
+
+        <div class="expense-actions">
+          <button class="action-button edit-button" data-action="edit" data-id="${expense.id}">
+            Edit
+          </button>
+
+          <button class="action-button delete-button" data-action="delete" data-id="${expense.id}">
+            Hapus
+          </button>
+        </div>
+      </div>
+
+      <div class="expense-amount">
+        ${formatRupiah(expense.amount)}
+      </div>
+    </article>
+  `;
+}
+
 async function renderTodayExpenses() {
   const today = getTodayDateString();
   const expenses = await getExpensesByDate(today);
@@ -81,27 +139,7 @@ async function renderTodayExpenses() {
     return;
   }
 
-  expenseList.innerHTML = sortedExpenses
-    .map((expense) => {
-      const syncedText = expense.synced ? "Tersinkron" : "Belum sinkron";
-
-      return `
-        <article class="expense-item">
-          <div class="expense-main">
-            <div class="expense-category">${escapeHtml(expense.category)}</div>
-            <p class="expense-note">${escapeHtml(expense.note || "Tanpa catatan")}</p>
-            <div class="expense-meta">
-              ${syncedText}
-            </div>
-          </div>
-
-          <div class="expense-amount">
-            ${formatRupiah(expense.amount)}
-          </div>
-        </article>
-      `;
-    })
-    .join("");
+  expenseList.innerHTML = sortedExpenses.map(renderExpenseCard).join("");
 }
 
 function groupExpensesByCategory(expenses) {
@@ -227,6 +265,7 @@ async function renderMonthlyReport() {
 
   renderCategorySummary(expenses);
   renderDailyTrend(expenses);
+  renderMonthlyExpenseList(expenses);
 }
 
 async function handleExpenseSubmit(event) {
@@ -239,30 +278,102 @@ async function handleExpenseSubmit(event) {
     return;
   }
 
-  const now = new Date().toISOString();
-
-  const expense = {
-    id: generateId(),
+  const expenseData = {
     date: dateInput.value,
     category: categoryInput.value,
     amount: amount,
-    note: noteInput.value.trim(),
-    created_at: now,
-    updated_at: now,
-    synced: false,
-    deleted: false
+    note: noteInput.value.trim()
   };
 
-  await addExpense(expense);
+  if (isEditingMode()) {
+    const editingId = editingExpenseIdInput.value;
 
-  expenseForm.reset();
-  dateInput.value = getTodayDateString();
+    await updateExpenseById(editingId, expenseData);
+    exitEditMode();
+  } else {
+    const now = new Date().toISOString();
+
+    const expense = {
+      id: generateId(),
+      date: expenseData.date,
+      category: expenseData.category,
+      amount: expenseData.amount,
+      note: expenseData.note,
+      created_at: now,
+      updated_at: now,
+      synced: false,
+      deleted: false
+    };
+
+    await addExpense(expense);
+
+    expenseForm.reset();
+    dateInput.value = getTodayDateString();
+  }
 
   await renderTodayExpenses();
   await renderMonthlyReport();
 
   await syncExpenses();
+
   await renderTodayExpenses();
+  await renderMonthlyReport();
+}
+
+async function handleExpenseActionClick(event) {
+  const button = event.target.closest("button[data-action]");
+
+  if (!button) {
+    return;
+  }
+
+  const action = button.dataset.action;
+  const id = button.dataset.id;
+
+  if (action === "edit") {
+    await handleEditExpense(id);
+  }
+
+  if (action === "delete") {
+    await handleDeleteExpense(id);
+  }
+}
+
+async function handleEditExpense(id) {
+  const expense = await getExpenseById(id);
+
+  if (!expense || expense.deleted) {
+    alert("Transaksi tidak ditemukan.");
+    return;
+  }
+
+  enterEditMode(expense);
+}
+
+async function handleDeleteExpense(id) {
+  const confirmed = confirm("Hapus transaksi ini?");
+
+  if (!confirmed) {
+    return;
+  }
+
+  await deleteExpense(id);
+
+  if (editingExpenseIdInput.value === id) {
+    exitEditMode();
+  }
+
+  await renderTodayExpenses();
+  await renderMonthlyReport();
+
+  await syncExpenses();
+
+  await renderTodayExpenses();
+  await renderMonthlyReport();
+}
+
+function handleCancelEdit() {
+  exitEditMode();
 }
 
 async function handleClearToday() {
@@ -337,6 +448,62 @@ async function handleExportCsv() {
   URL.revokeObjectURL(url);
 }
 
+async function handleExpenseListClick(event) {
+  const button = event.target.closest("button[data-action]");
+
+  if (!button) {
+    return;
+  }
+
+  const action = button.dataset.action;
+  const id = button.dataset.id;
+
+  if (action === "edit") {
+    await handleEditExpense(id);
+  }
+
+  if (action === "delete") {
+    await handleDeleteExpense(id);
+  }
+}
+
+async function handleEditExpense(id) {
+  const expense = await getExpenseById(id);
+
+  if (!expense) {
+    alert("Transaksi tidak ditemukan.");
+    return;
+  }
+
+  enterEditMode(expense);
+}
+
+async function handleDeleteExpense(id) {
+  const confirmed = confirm("Hapus transaksi ini?");
+
+  if (!confirmed) {
+    return;
+  }
+
+  await deleteExpense(id);
+
+  if (editingExpenseIdInput.value === id) {
+    exitEditMode();
+  }
+
+  await renderTodayExpenses();
+  await renderMonthlyReport();
+
+  await syncExpenses();
+
+  await renderTodayExpenses();
+  await renderMonthlyReport();
+}
+
+function handleCancelEdit() {
+  exitEditMode();
+}
+
 function escapeCsvValue(value) {
   const stringValue = String(value ?? "");
   const escapedValue = stringValue.replaceAll('"', '""');
@@ -367,6 +534,35 @@ async function registerServiceWorker() {
   }
 }
 
+function isEditingMode() {
+  return Boolean(editingExpenseIdInput.value);
+}
+
+function enterEditMode(expense) {
+  editingExpenseIdInput.value = expense.id;
+  dateInput.value = expense.date;
+  amountInput.value = expense.amount;
+  categoryInput.value = expense.category;
+  noteInput.value = expense.note || "";
+
+  submitButton.textContent = "Update Pengeluaran";
+  cancelEditButton.classList.remove("hidden");
+
+  window.scrollTo({
+    top: 0,
+    behavior: "smooth"
+  });
+}
+
+function exitEditMode() {
+  editingExpenseIdInput.value = "";
+  expenseForm.reset();
+  dateInput.value = getTodayDateString();
+
+  submitButton.textContent = "Simpan Pengeluaran";
+  cancelEditButton.classList.add("hidden");
+}
+
 function initApp() {
   dateInput.value = getTodayDateString();
   reportMonthInput.value = getCurrentMonthString();
@@ -378,9 +574,13 @@ function initApp() {
   scheduleSync();
 
   expenseForm.addEventListener("submit", handleExpenseSubmit);
-  clearTodayButton.addEventListener("click", handleClearToday);
-  reportMonthInput.addEventListener("change", renderMonthlyReport);
-  exportCsvButton.addEventListener("click", handleExportCsv);
+clearTodayButton.addEventListener("click", handleClearToday);
+reportMonthInput.addEventListener("change", renderMonthlyReport);
+exportCsvButton.addEventListener("click", handleExportCsv);
+
+document.addEventListener("click", handleExpenseActionClick);
+expenseList.addEventListener("click", handleExpenseListClick);
+cancelEditButton.addEventListener("click", handleCancelEdit);
 
   window.addEventListener("online", async () => {
     updateConnectionStatus();

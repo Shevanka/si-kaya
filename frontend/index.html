@@ -39,6 +39,8 @@
       <h2 class="section-title">Catat Pengeluaran</h2>
 
       <form id="expenseForm" class="expense-form">
+        <input type="hidden" id="editingExpenseId" />
+
         <div class="form-group">
           <label for="date">Tanggal</label>
           <input type="date" id="date" required />
@@ -77,9 +79,15 @@
           />
         </div>
 
-        <button type="submit" class="primary-button">
-          Simpan Pengeluaran
-        </button>
+        <div class="form-actions">
+  <button type="submit" id="submitButton" class="primary-button">
+    Simpan Pengeluaran
+  </button>
+
+  <button type="button" id="cancelEditButton" class="secondary-button hidden">
+    Batal Edit
+  </button>
+</div>
       </form>
     </section>
 
@@ -135,6 +143,14 @@
           <p class="empty-state">Belum ada data bulan ini.</p>
         </div>
       </div>
+
+      <div class="report-block">
+  <h3>Daftar Transaksi Bulan Ini</h3>
+  <div id="monthlyExpenseList" class="expense-list">
+    <p class="empty-state">Belum ada transaksi bulan ini.</p>
+  </div>
+</div>
+
     </section>
   </main>
 

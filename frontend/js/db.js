@@ -224,3 +224,39 @@ async function markExpensesAsSynced(ids) {
     });
   });
 }
+
+async function getExpenseById(id) {
+  const db = await openDatabase();
+
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction(STORE_NAME, "readonly");
+    const store = transaction.objectStore(STORE_NAME);
+
+    const request = store.get(id);
+
+    request.onsuccess = () => {
+      resolve(request.result);
+    };
+
+    request.onerror = () => {
+      reject("Gagal mengambil detail transaksi");
+    };
+  });
+}
+
+async function updateExpenseById(id, updatedData) {
+  const existingExpense = await getExpenseById(id);
+
+  if (!existingExpense) {
+    throw new Error("Transaksi tidak ditemukan");
+  }
+
+  const updatedExpense = {
+    ...existingExpense,
+    ...updatedData,
+    synced: false,
+    updated_at: new Date().toISOString()
+  };
+
+  return updateExpense(updatedExpense);
+}
