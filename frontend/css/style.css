@@ -353,3 +353,36 @@ select:focus {
     grid-column: 2;
   }
 }
+
+.status-group {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+}
+
+.status.sync-idle {
+  background: #e5e7eb;
+  color: #374151;
+}
+
+.status.sync-running {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.status.sync-success {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.status.sync-error {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+@media (max-width: 420px) {
+  .status-group {
+    align-items: flex-start;
+  }
+}

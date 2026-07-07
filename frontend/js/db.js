@@ -163,3 +163,64 @@ async function getExpensesByMonth(yearMonth) {
     return !expense.deleted && expense.date.startsWith(yearMonth);
   });
 } 
+
+async function getUnsyncedExpenses() {
+  const allExpenses = await getAllExpenses();
+
+  return allExpenses.filter((expense) => {
+    return expense.synced === false;
+  });
+}
+
+async function markExpensesAsSynced(ids) {
+  const db = await openDatabase();
+
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction(STORE_NAME, "readwrite");
+    const store = transaction.objectStore(STORE_NAME);
+
+    let processed = 0;
+
+    if (ids.length === 0) {
+      resolve(true);
+      return;
+    }
+
+    ids.forEach((id) => {
+      const getRequest = store.get(id);
+
+      getRequest.onsuccess = () => {
+        const expense = getRequest.result;
+
+        if (expense) {
+          expense.synced = true;
+          expense.updated_at = expense.updated_at || new Date().toISOString();
+
+          const updateRequest = store.put(expense);
+
+          updateRequest.onsuccess = () => {
+            processed += 1;
+
+            if (processed === ids.length) {
+              resolve(true);
+            }
+          };
+
+          updateRequest.onerror = () => {
+            reject("Gagal update status sync transaksi");
+          };
+        } else {
+          processed += 1;
+
+          if (processed === ids.length) {
+            resolve(true);
+          }
+        }
+      };
+
+      getRequest.onerror = () => {
+        reject("Gagal mengambil transaksi untuk sync");
+      };
+    });
+  });
+}

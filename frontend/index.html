@@ -6,8 +6,8 @@
 
   <title>Dompet Harian</title>
 
-  ./css/style.css
-  ./manifest.json
+  <link rel="stylesheet" href="./css/style.css" />
+  <link rel="manifest" href="./manifest.json" />
 
   <meta name="theme-color" content="#111827" />
 </head>
@@ -19,9 +19,15 @@
         <h1>Dompet Harian</h1>
       </div>
 
-      <div id="connectionStatus" class="status offline">
-        Offline
-      </div>
+      <div class="status-group">
+  <div id="connectionStatus" class="status offline">
+    Offline
+  </div>
+
+  <div id="syncStatus" class="status sync-idle">
+    Sync idle
+  </div>
+</div>
     </header>
 
     <section class="card summary-card">
@@ -132,7 +138,8 @@
     </section>
   </main>
 
-  ./js/db.jsscript>
-  ./js/app.jsscript>
+  <script src="./js/db.js"></script>
+  <script src="./js/sync.js"></script>
+  <script src="./js/app.js"></script>
 </body>
 </html>

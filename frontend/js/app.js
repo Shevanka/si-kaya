@@ -260,6 +260,9 @@ async function handleExpenseSubmit(event) {
 
   await renderTodayExpenses();
   await renderMonthlyReport();
+
+  await syncExpenses();
+  await renderTodayExpenses();
 }
 
 async function handleClearToday() {
@@ -272,6 +275,10 @@ async function handleClearToday() {
   }
 
   await clearExpensesByDate(today);
+  await renderTodayExpenses();
+  await renderMonthlyReport();
+
+  await syncExpenses();
   await renderTodayExpenses();
   await renderMonthlyReport();
 }
@@ -368,14 +375,24 @@ function initApp() {
   renderTodayExpenses();
   renderMonthlyReport();
   registerServiceWorker();
+  scheduleSync();
 
   expenseForm.addEventListener("submit", handleExpenseSubmit);
   clearTodayButton.addEventListener("click", handleClearToday);
   reportMonthInput.addEventListener("change", renderMonthlyReport);
   exportCsvButton.addEventListener("click", handleExportCsv);
 
-  window.addEventListener("online", updateConnectionStatus);
-  window.addEventListener("offline", updateConnectionStatus);
+  window.addEventListener("online", async () => {
+    updateConnectionStatus();
+    await syncExpenses();
+    await renderTodayExpenses();
+    await renderMonthlyReport();
+  });
+
+  window.addEventListener("offline", () => {
+    updateConnectionStatus();
+    setSyncStatus("Offline", "idle");
+  });
 }
 
 initApp();

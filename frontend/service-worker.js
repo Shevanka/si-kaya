@@ -1,4 +1,4 @@
-const CACHE_NAME = "dompet-harian-cache-v2";
+const CACHE_NAME = "dompet-harian-cache-v3";
 
 const ASSETS_TO_CACHE = [
   "./",
@@ -6,8 +6,10 @@ const ASSETS_TO_CACHE = [
   "./manifest.json",
   "./css/style.css",
   "./js/db.js",
+  "./js/sync.js",
   "./js/app.js"
 ];
+
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
