@@ -1,4 +1,4 @@
-const CACHE_NAME = "dompet-harian-cache-v5";
+const CACHE_NAME = "dompet-harian-cache-v6";
 
 const ASSETS_TO_CACHE = [
   "./",

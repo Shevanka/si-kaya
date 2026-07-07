@@ -509,3 +509,55 @@ select:focus {
 .hidden {
   display: none !important;
 }
+
+.helper-text {
+  margin: -6px 0 14px;
+  color: #94a3b8;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.category-suggestion {
+  margin: 2px 0 0;
+  color: #93c5fd;
+  font-size: 12px;
+}
+
+.keyword-form {
+  display: grid;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.keyword-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.keyword-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border-radius: 999px;
+  padding: 8px 10px;
+  background: #020617;
+  border: 1px solid #1f2937;
+  color: #e5e7eb;
+  font-size: 13px;
+}
+
+.keyword-pill strong {
+  color: #facc15;
+}
+
+.keyword-remove-button {
+  border: none;
+  border-radius: 999px;
+  padding: 4px 7px;
+  cursor: pointer;
+  background: #fee2e2;
+  color: #991b1b;
+  font-weight: 800;
+  font-size: 11px;
+}

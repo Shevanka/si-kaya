@@ -1,3 +1,11 @@
+let isCategoryManuallySelected = false;
+
+const keywordForm = document.getElementById("keywordForm");
+const keywordInput = document.getElementById("keywordInput");
+const keywordCategoryInput = document.getElementById("keywordCategoryInput");
+const keywordList = document.getElementById("keywordList");
+const categorySuggestion = document.getElementById("categorySuggestion");
+
 const expenseForm = document.getElementById("expenseForm");
 const dateInput = document.getElementById("date");
 const amountInput = document.getElementById("amount");
@@ -278,11 +286,15 @@ async function handleExpenseSubmit(event) {
     return;
   }
 
+  const note = noteInput.value.trim();
+  const detectedCategory = detectCategoryFromText(note);
+  const finalCategory = categoryInput.value || detectedCategory || "Lainnya";
+
   const expenseData = {
     date: dateInput.value,
-    category: categoryInput.value,
+    category: finalCategory,
     amount: amount,
-    note: noteInput.value.trim()
+    note: note
   };
 
   if (isEditingMode()) {
@@ -309,6 +321,9 @@ async function handleExpenseSubmit(event) {
 
     expenseForm.reset();
     dateInput.value = getTodayDateString();
+    categoryInput.value = "";
+    isCategoryManuallySelected = false;
+    categorySuggestion.textContent = "Tulis catatan untuk deteksi kategori otomatis.";
   }
 
   await renderTodayExpenses();
@@ -563,24 +578,281 @@ function exitEditMode() {
   cancelEditButton.classList.add("hidden");
 }
 
+const CATEGORY_RULES_STORAGE_KEY = "dompet_harian_category_rules";
+
+const DEFAULT_CATEGORY_RULES = [
+  {
+    keyword: "nasi",
+    category: "Makan"
+  },
+  {
+    keyword: "ayam",
+    category: "Makan"
+  },
+  {
+    keyword: "gacoan",
+    category: "Makan"
+  },
+  {
+    keyword: "kopi",
+    category: "Makan"
+  },
+  {
+    keyword: "gofood",
+    category: "Makan"
+  },
+  {
+    keyword: "grabfood",
+    category: "Makan"
+  },
+  {
+    keyword: "grab",
+    category: "Transport"
+  },
+  {
+    keyword: "gojek",
+    category: "Transport"
+  },
+  {
+    keyword: "bensin",
+    category: "Transport"
+  },
+  {
+    keyword: "parkir",
+    category: "Transport"
+  },
+  {
+    keyword: "listrik",
+    category: "Tagihan"
+  },
+  {
+    keyword: "air",
+    category: "Tagihan"
+  },
+  {
+    keyword: "wifi",
+    category: "Tagihan"
+  },
+  {
+    keyword: "pulsa",
+    category: "Tagihan"
+  },
+  {
+    keyword: "sabun",
+    category: "Belanja"
+  },
+  {
+    keyword: "shopee",
+    category: "Belanja"
+  },
+  {
+    keyword: "tokopedia",
+    category: "Belanja"
+  },
+  {
+    keyword: "bioskop",
+    category: "Hiburan"
+  },
+  {
+    keyword: "netflix",
+    category: "Hiburan"
+  }
+];
+
+function loadCategoryRules() {
+  const savedRules = localStorage.getItem(CATEGORY_RULES_STORAGE_KEY);
+
+  if (!savedRules) {
+    saveCategoryRules(DEFAULT_CATEGORY_RULES);
+    return DEFAULT_CATEGORY_RULES;
+  }
+
+  try {
+    return JSON.parse(savedRules);
+  } catch (error) {
+    saveCategoryRules(DEFAULT_CATEGORY_RULES);
+    return DEFAULT_CATEGORY_RULES;
+  }
+}
+
+function saveCategoryRules(rules) {
+  localStorage.setItem(CATEGORY_RULES_STORAGE_KEY, JSON.stringify(rules));
+}
+
+function normalizeText(value) {
+  return String(value || "")
+    .toLowerCase()
+    .trim();
+}
+
+function detectCategoryFromText(text) {
+  const normalizedText = normalizeText(text);
+
+  if (!normalizedText) {
+    return null;
+  }
+
+  const rules = loadCategoryRules();
+
+  const matchedRule = rules.find((rule) => {
+    const keyword = normalizeText(rule.keyword);
+
+    if (!keyword) {
+      return false;
+    }
+
+    return normalizedText.includes(keyword);
+  });
+
+  if (!matchedRule) {
+    return null;
+  }
+
+  return matchedRule.category;
+}
+
+function applyCategorySuggestion() {
+  const note = noteInput.value.trim();
+  const detectedCategory = detectCategoryFromText(note);
+
+  if (!note) {
+    categorySuggestion.textContent = "Tulis catatan untuk deteksi kategori otomatis.";
+
+    if (!isCategoryManuallySelected) {
+      categoryInput.value = "";
+    }
+
+    return;
+  }
+
+  if (!detectedCategory) {
+    categorySuggestion.textContent = "Kategori belum terdeteksi.";
+
+    if (!isCategoryManuallySelected) {
+      categoryInput.value = "";
+    }
+
+    return;
+  }
+
+  categorySuggestion.textContent = `Terdeteksi: ${detectedCategory}`;
+
+  if (!isCategoryManuallySelected) {
+    categoryInput.value = detectedCategory;
+  }
+}
+
+function renderKeywordList() {
+  const rules = loadCategoryRules();
+
+  if (!keywordList) {
+    return;
+  }
+
+  if (rules.length === 0) {
+    keywordList.innerHTML = `
+      <p class="empty-state">Belum ada kata kunci.</p>
+    `;
+    return;
+  }
+
+  keywordList.innerHTML = rules
+    .map((rule, index) => {
+      return `
+        <div class="keyword-pill">
+          <span>${escapeHtml(rule.keyword)}</span>
+          <strong>${escapeHtml(rule.category)}</strong>
+          <button
+            type="button"
+            class="keyword-remove-button"
+            data-keyword-index="${index}"
+          >
+            ×
+          </button>
+        </div>
+      `;
+    })
+    .join("");
+}
+
+function handleKeywordSubmit(event) {
+  event.preventDefault();
+
+  const keyword = keywordInput.value.trim();
+  const category = keywordCategoryInput.value;
+
+  if (!keyword || !category) {
+    alert("Kata kunci dan kategori wajib diisi.");
+    return;
+  }
+
+  const rules = loadCategoryRules();
+
+  const alreadyExists = rules.some((rule) => {
+    return normalizeText(rule.keyword) === normalizeText(keyword);
+  });
+
+  if (alreadyExists) {
+    alert("Kata kunci sudah ada.");
+    return;
+  }
+
+  rules.push({
+    keyword,
+    category
+  });
+
+  saveCategoryRules(rules);
+
+  keywordForm.reset();
+  renderKeywordList();
+  applyCategorySuggestion();
+}
+
+function handleKeywordListClick(event) {
+  const button = event.target.closest("button[data-keyword-index]");
+
+  if (!button) {
+    return;
+  }
+
+  const index = Number(button.dataset.keywordIndex);
+  const rules = loadCategoryRules();
+
+  rules.splice(index, 1);
+
+  saveCategoryRules(rules);
+  renderKeywordList();
+  applyCategorySuggestion();
+}
+
 function initApp() {
   dateInput.value = getTodayDateString();
   reportMonthInput.value = getCurrentMonthString();
+  categoryInput.value = "";
 
   updateConnectionStatus();
   renderTodayExpenses();
   renderMonthlyReport();
+  renderKeywordList();
   registerServiceWorker();
   scheduleSync();
 
   expenseForm.addEventListener("submit", handleExpenseSubmit);
-clearTodayButton.addEventListener("click", handleClearToday);
-reportMonthInput.addEventListener("change", renderMonthlyReport);
-exportCsvButton.addEventListener("click", handleExportCsv);
+  clearTodayButton.addEventListener("click", handleClearToday);
+  reportMonthInput.addEventListener("change", renderMonthlyReport);
+  exportCsvButton.addEventListener("click", handleExportCsv);
 
-document.addEventListener("click", handleExpenseActionClick);
-expenseList.addEventListener("click", handleExpenseListClick);
-cancelEditButton.addEventListener("click", handleCancelEdit);
+  noteInput.addEventListener("input", applyCategorySuggestion);
+  keywordForm.addEventListener("submit", handleKeywordSubmit);
+  keywordList.addEventListener("click", handleKeywordListClick);
+
+  document.addEventListener("click", handleExpenseActionClick);
+  cancelEditButton.addEventListener("click", handleCancelEdit);
+  categoryInput.addEventListener("change", () => { 
+    isCategoryManuallySelected = Boolean(categoryInput.value);
+  });
+
 
   window.addEventListener("online", async () => {
     updateConnectionStatus();
@@ -593,6 +865,9 @@ cancelEditButton.addEventListener("click", handleCancelEdit);
     updateConnectionStatus();
     setSyncStatus("Offline", "idle");
   });
+
+  
+  
 }
 
 initApp();
