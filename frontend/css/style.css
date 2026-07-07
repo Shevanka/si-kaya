@@ -216,3 +216,140 @@ select:focus {
     flex-direction: column;
   }
 }
+
+.report-filter {
+  margin-bottom: 16px;
+}
+
+.monthly-summary {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.mini-card {
+  border: 1px solid #1f2937;
+  background: #020617;
+  border-radius: 14px;
+  padding: 14px;
+}
+
+.mini-card p {
+  margin: 0 0 6px;
+  color: #94a3b8;
+  font-size: 13px;
+}
+
+.mini-card strong {
+  font-size: 20px;
+  color: #facc15;
+}
+
+.report-block {
+  margin-top: 18px;
+}
+
+.report-block h3 {
+  margin: 0 0 12px;
+  font-size: 16px;
+}
+
+.category-summary {
+  display: grid;
+  gap: 12px;
+}
+
+.category-row {
+  display: grid;
+  gap: 7px;
+  padding: 12px;
+  border: 1px solid #1f2937;
+  border-radius: 14px;
+  background: #020617;
+}
+
+.category-row-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.category-row-header span {
+  font-weight: 700;
+}
+
+.category-row-header strong {
+  color: #facc15;
+  white-space: nowrap;
+}
+
+.category-row small {
+  color: #64748b;
+}
+
+.bar-bg,
+.trend-bar-bg {
+  width: 100%;
+  height: 9px;
+  border-radius: 999px;
+  background: #1e293b;
+  overflow: hidden;
+}
+
+.bar-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #22c55e, #84cc16);
+}
+
+.daily-trend {
+  display: grid;
+  gap: 10px;
+}
+
+.trend-row {
+  display: grid;
+  grid-template-columns: 32px 1fr auto;
+  align-items: center;
+  gap: 10px;
+}
+
+.trend-day {
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  border-radius: 10px;
+  background: #1f2937;
+  color: #cbd5e1;
+  font-weight: 700;
+  font-size: 13px;
+}
+
+.trend-bar-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+}
+
+.trend-row strong {
+  color: #facc15;
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+@media (max-width: 420px) {
+  .monthly-summary {
+    grid-template-columns: 1fr;
+  }
+
+  .trend-row {
+    grid-template-columns: 32px 1fr;
+  }
+
+  .trend-row strong {
+    grid-column: 2;
+  }
+}

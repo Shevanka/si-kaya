@@ -1,4 +1,4 @@
-const CACHE_NAME = "dompet-harian-cache-v1";
+const CACHE_NAME = "dompet-harian-cache-v2";
 
 const ASSETS_TO_CACHE = [
   "./",
@@ -46,9 +46,7 @@ self.addEventListener("fetch", (event) => {
         return cachedResponse;
       }
 
-      return fetch(event.request).then((networkResponse) => {
-        return networkResponse;
-      });
+      return fetch(event.request);
     })
   );
 });

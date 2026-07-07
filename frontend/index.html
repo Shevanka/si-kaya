@@ -89,6 +89,47 @@
         <p class="empty-state">Belum ada transaksi hari ini.</p>
       </div>
     </section>
+
+    <section class="card">
+      <div class="section-header">
+        <h2 class="section-title">Laporan Bulanan</h2>
+
+        <button id="exportCsvButton" class="secondary-button" type="button">
+          Export CSV
+        </button>
+      </div>
+
+      <div class="form-group report-filter">
+        <label for="reportMonth">Pilih bulan</label>
+        <input type="month" id="reportMonth" />
+      </div>
+
+      <div class="monthly-summary">
+        <div class="mini-card">
+          <p>Total bulan ini</p>
+          <strong id="monthlyTotal">Rp0</strong>
+        </div>
+
+        <div class="mini-card">
+          <p>Jumlah transaksi</p>
+          <strong id="monthlyCount">0</strong>
+        </div>
+      </div>
+
+      <div class="report-block">
+        <h3>Rekap per Kategori</h3>
+        <div id="categorySummary" class="category-summary">
+          <p class="empty-state">Belum ada data bulan ini.</p>
+        </div>
+      </div>
+
+      <div class="report-block">
+        <h3>Tren Harian</h3>
+        <div id="dailyTrend" class="daily-trend">
+          <p class="empty-state">Belum ada data bulan ini.</p>
+        </div>
+      </div>
+    </section>
   </main>
 
   ./js/db.jsscript>

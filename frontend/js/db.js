@@ -155,3 +155,11 @@ async function clearExpensesByDate(date) {
 
   return true;
 }
+
+async function getExpensesByMonth(yearMonth) {
+  const allExpenses = await getAllExpenses();
+
+  return allExpenses.filter((expense) => {
+    return !expense.deleted && expense.date.startsWith(yearMonth);
+  });
+} 
