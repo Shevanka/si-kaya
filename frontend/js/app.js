@@ -328,11 +328,13 @@ async function handleExpenseSubmit(event) {
 
   await renderTodayExpenses();
   await renderMonthlyReport();
+  await renderBudgetStatus();
 
   await syncExpenses();
 
   await renderTodayExpenses();
   await renderMonthlyReport();
+  await renderBudgetStatus();
 }
 
 async function handleExpenseActionClick(event) {
@@ -380,11 +382,13 @@ async function handleDeleteExpense(id) {
 
   await renderTodayExpenses();
   await renderMonthlyReport();
+  await renderBudgetStatus();
 
   await syncExpenses();
 
   await renderTodayExpenses();
   await renderMonthlyReport();
+  await renderBudgetStatus();
 }
 
 function handleCancelEdit() {
@@ -403,10 +407,12 @@ async function handleClearToday() {
   await clearExpensesByDate(today);
   await renderTodayExpenses();
   await renderMonthlyReport();
+  await renderBudgetStatus();
 
   await syncExpenses();
   await renderTodayExpenses();
   await renderMonthlyReport();
+  await renderBudgetStatus();
 }
 
 async function handleExportCsv() {
@@ -508,11 +514,13 @@ async function handleDeleteExpense(id) {
 
   await renderTodayExpenses();
   await renderMonthlyReport();
+  await renderBudgetStatus();
 
   await syncExpenses();
 
   await renderTodayExpenses();
   await renderMonthlyReport();
+  await renderBudgetStatus();
 }
 
 function handleCancelEdit() {
@@ -559,6 +567,8 @@ function enterEditMode(expense) {
   amountInput.value = expense.amount;
   categoryInput.value = expense.category;
   noteInput.value = expense.note || "";
+
+  isCategoryManuallySelected = true;
 
   submitButton.textContent = "Update Pengeluaran";
   cancelEditButton.classList.remove("hidden");
@@ -826,6 +836,234 @@ function handleKeywordListClick(event) {
   applyCategorySuggestion();
 }
 
+const budgetForm =
+  document.getElementById("budgetForm");
+
+const monthlyBudgetInput =
+  document.getElementById("monthlyBudgetInput");
+
+const budgetDisplay =
+  document.getElementById("budgetDisplay");
+
+const budgetUsed =
+  document.getElementById("budgetUsed");
+
+const budgetRemaining =
+  document.getElementById("budgetRemaining");
+
+const budgetStatus =
+  document.getElementById("budgetStatus");
+
+const reminderForm =
+  document.getElementById("reminderForm");
+
+const reminderEnabled =
+  document.getElementById("reminderEnabled");
+
+const reminderTime =
+  document.getElementById("reminderTime");
+
+const BUDGET_STORAGE_KEY =
+  "dompet_harian_budget";
+
+const REMINDER_STORAGE_KEY =
+  "dompet_harian_reminder";
+
+function saveBudget(value) {
+  localStorage.setItem(
+    BUDGET_STORAGE_KEY,
+    String(value)
+  );
+}
+
+function loadBudget() {
+  return Number(
+    localStorage.getItem(
+      BUDGET_STORAGE_KEY
+    ) || 0
+  );
+}
+
+async function renderBudgetStatus() {
+
+  const budget = loadBudget();
+
+  budgetDisplay.textContent =
+    formatRupiah(budget);
+
+  const selectedMonth =
+    reportMonthInput.value ||
+    getCurrentMonthString();
+
+  const expenses =
+    await getExpensesByMonth(
+      selectedMonth
+    );
+
+  const totalSpent =
+    expenses.reduce(
+      (sum, item) =>
+        sum + Number(item.amount), 0
+    );
+}
+
+function handleBudgetSubmit(event) {
+
+  event.preventDefault();
+
+  const amount =
+    Number(
+      monthlyBudgetInput.value
+    );
+
+  saveBudget(amount);
+
+  renderBudgetStatus();
+
+  alert(
+    "Budget berhasil disimpan"
+  );
+}
+
+async function requestNotificationPermission() {
+
+  if (
+    !("Notification" in window)
+  ) {
+    return false;
+  }
+
+  if (
+    Notification.permission ===
+    "granted"
+  ) {
+    return true;
+  }
+
+  const permission =
+    await Notification.requestPermission();
+
+  return permission === "granted";
+}
+
+function saveReminder(settings) {
+
+  localStorage.setItem(
+    REMINDER_STORAGE_KEY,
+    JSON.stringify(settings)
+  );
+}
+
+function loadReminder() {
+
+  const saved =
+    localStorage.getItem(
+      REMINDER_STORAGE_KEY
+    );
+
+  if (!saved) {
+
+    return {
+      enabled: false,
+      time: "20:00"
+    };
+
+  }
+
+  return JSON.parse(saved);
+}
+
+async function handleReminderSubmit(
+  event
+) {
+
+  event.preventDefault();
+
+  const enabled =
+    reminderEnabled.checked;
+
+  const time =
+    reminderTime.value;
+
+  saveReminder({
+    enabled,
+    time
+  });
+
+  if (enabled) {
+    await requestNotificationPermission();
+  }
+
+  alert(
+    "Pengingat berhasil disimpan"
+  );
+}
+
+function checkReminder() {
+
+  const settings =
+    loadReminder();
+
+  if (!settings.enabled) {
+    return;
+  }
+
+  if (
+    Notification.permission !==
+    "granted"
+  ) {
+    return;
+  }
+
+  const now = new Date();
+
+  const currentTime =
+    now.toTimeString()
+       .slice(0, 5);
+
+  if (
+    currentTime === settings.time
+  ) {
+
+    new Notification(
+      "Dompet Harian",
+      {
+        body:
+          "Jangan lupa mencatat pengeluaran hari ini."
+      }
+    );
+  }
+}
+
+renderBudgetStatus();
+
+monthlyBudgetInput.value =
+  loadBudget();
+
+const reminderSettings =
+  loadReminder();
+
+reminderEnabled.checked =
+  reminderSettings.enabled;
+
+reminderTime.value =
+  reminderSettings.time;
+
+budgetForm.addEventListener(
+  "submit",
+  handleBudgetSubmit
+);
+
+reminderForm.addEventListener(
+  "submit",
+  handleReminderSubmit
+);
+
+setInterval(
+  checkReminder,
+  60000
+);
+
 function initApp() {
   dateInput.value = getTodayDateString();
   reportMonthInput.value = getCurrentMonthString();
@@ -866,7 +1104,9 @@ function initApp() {
     setSyncStatus("Offline", "idle");
   });
 
-  
+  categoryInput.addEventListener("change", () => {
+  isCategoryManuallySelected = Boolean(categoryInput.value);
+  });
   
 }
 

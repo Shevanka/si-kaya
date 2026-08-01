@@ -198,6 +198,89 @@
 </div>
 
     </section>
+
+    <section class="card">
+  <h2 class="section-title">Budget Bulanan</h2>
+
+  <form id="budgetForm">
+    <div class="form-group">
+      <label for="monthlyBudgetInput">
+        Budget Bulanan (Rp)
+      </label>
+
+      <input
+        type="number"
+        id="monthlyBudgetInput"
+        min="0"
+        placeholder="3000000"
+      />
+    </div>
+
+    <button type="submit" class="primary-button">
+      Simpan Budget
+    </button>
+  </form>
+
+  <div class="budget-summary">
+    <p>
+      Budget:
+      <strong id="budgetDisplay">Rp0</strong>
+    </p>
+
+    <p>
+      Terpakai:
+      <strong id="budgetUsed">Rp0</strong>
+    </p>
+
+    <p>
+      Sisa:
+      <strong id="budgetRemaining">Rp0</strong>
+    </p>
+
+    <p id="budgetStatus">
+      Budget belum diatur
+    </p>
+  </div>
+</section>
+
+<section class="card">
+  <h2 class="section-title">
+    Pengingat Harian
+  </h2>
+
+  <form id="reminderForm">
+
+    <div class="form-group">
+  <label class="toggle-wrapper">
+    Aktifkan pengingat
+    <input type="checkbox" id="reminderEnabled" class="toggle-checkbox" />
+    <span class="toggle-slider"></span>
+  </label>
+</div>
+
+    <div class="form-group">
+      <label for="reminderTime">
+        Jam Pengingat
+      </label>
+
+      <input
+        type="time"
+        id="reminderTime"
+        value="20:00"
+      />
+    </div>
+
+    <button
+      type="submit"
+      class="primary-button"
+    >
+      Simpan Pengingat
+    </button>
+
+  </form>
+</section>
+
+
   </main>
 
   <script src="./js/db.js"></script>
