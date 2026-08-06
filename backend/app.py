@@ -7,7 +7,7 @@ from datetime import datetime
 app = Flask(__name__)
 CORS(app)
 
-DATABASE_PATH = Path("database.db")
+DATABASE_PATH = Path(__file__).resolve().parent / "database.db"
 
 
 def get_db_connection():
@@ -37,6 +37,9 @@ def init_database():
 
     connection.commit()
     connection.close()
+
+
+init_database()
 
 
 def row_to_dict(row):
@@ -192,7 +195,7 @@ def sync_expenses():
         except Exception as error:
             failed_items.append(
                 {
-                    "id": expense.get("id"),
+                    "id": expense.get("id") if isinstance(expense, dict) else None,
                     "error": str(error),
                 }
             )
@@ -226,6 +229,9 @@ def delete_all_expenses():
 
 
 def validate_expense(expense):
+    if not isinstance(expense, dict):
+        raise ValueError("Expense item must be a dictionary")
+
     required_fields = [
         "id",
         "date",

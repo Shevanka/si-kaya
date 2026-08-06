@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Kategori - Dompet Harian</title>
+
+    <link rel="stylesheet" href="./css/style.css" />
+  </head>
+  <body>
+    <main class="app">
+      <header class="app-header">
+        <div>
+          <p class="eyebrow">Offline-first PWA</p>
+          <h1>Kategori</h1>
+        </div>
+
+        <div class="status-group">
+          <div id="connectionStatus" class="status offline">Offline</div>
+          <div id="syncStatus" class="status sync-idle">Sync idle</div>
+        </div>
+      </header>
+
+      <section class="card">
+        <h2 class="section-title">Kategori Otomatis</h2>
+
+        <p class="helper-text">
+          Tambahkan kata kunci agar kategori bisa terisi otomatis dari catatan transaksi.
+        </p>
+
+        <form id="keywordForm" class="keyword-form">
+          <div class="form-group">
+            <label for="keywordInput">Kata kunci</label>
+            <input
+              type="text"
+              id="keywordInput"
+              placeholder="Contoh: gacoan, grab, listrik"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="keywordCategoryInput">Kategori</label>
+            <select id="keywordCategoryInput" required>
+              <option value="">Pilih kategori</option>
+              <option value="Makan">Makan</option>
+              <option value="Transport">Transport</option>
+              <option value="Belanja">Belanja</option>
+              <option value="Tagihan">Tagihan</option>
+              <option value="Hiburan">Hiburan</option>
+              <option value="Lainnya">Lainnya</option>
+            </select>
+          </div>
+
+          <button type="submit" class="secondary-button">Tambah Kata Kunci</button>
+        </form>
+
+        <div id="keywordList" class="keyword-list">
+          <p class="empty-state">Belum ada kata kunci.</p>
+        </div>
+      </section>
+    </main>
+
+    <nav class="bottom-nav">
+      <a href="index.html">
+        <span>🏠</span>
+        <small>Home</small>
+      </a>
+
+      <a href="reports.html">
+        <span>📊</span>
+        <small>Laporan</small>
+      </a>
+
+      <a href="budget.html">
+        <span>💰</span>
+        <small>Budget</small>
+      </a>
+
+      <a href="categories.html" class="active">
+        <span>🏷️</span>
+        <small>Kategori</small>
+      </a>
+
+      <a href="reminder.html">
+        <span>🔔</span>
+        <small>Reminder</small>
+      </a>
+    </nav>
+
+    <script src="./js/db.js"></script>
+    <script src="./js/sync.js"></script>
+    <script src="./js/app.js"></script>
+    <script src="./js/navigation.js"></script>
+  </body>
+</html>
