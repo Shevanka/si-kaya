@@ -1,4 +1,8 @@
-const API_BASE_URL = 'http://localhost:5000'
+const API_BASE_URL = window.API_BASE_URL || (
+  window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+    ? 'http://localhost:5000'
+    : 'https://si-kaya-backend.onrender.com' // Ganti URL ini dengan URL Backend Render/Railway kamu setelah backend di-deploy
+)
 
 let isSyncing = false
 
