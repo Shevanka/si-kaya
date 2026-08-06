@@ -1,54 +1,58 @@
-const CACHE_NAME = "dompet-harian-cache-v8";
+const CACHE_NAME = 'dompet-harian-cache-v12'
 
 const ASSETS_TO_CACHE = [
-  "./",
-  "./index.html",
-  "./manifest.json",
-  "./css/style.css",
-  "./js/db.js",
-  "./js/sync.js",
-  "./js/app.js"
-];
+  './',
+  './index.html',
+  './reports.html',
+  './budget.html',
+  './categories.html',
+  './reminder.html',
+  './manifest.json',
+  './css/style.css',
+  './js/db.js',
+  './js/sync.js',
+  './js/app.js',
+  './js/navigation.js',
+]
 
-
-self.addEventListener("install", (event) => {
+self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(ASSETS_TO_CACHE);
+      return cache.addAll(ASSETS_TO_CACHE)
     })
-  );
+  )
 
-  self.skipWaiting();
-});
+  self.skipWaiting()
+})
 
-self.addEventListener("activate", (event) => {
+self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((cacheNames) => {
       return Promise.all(
         cacheNames.map((cacheName) => {
           if (cacheName !== CACHE_NAME) {
-            return caches.delete(cacheName);
+            return caches.delete(cacheName)
           }
         })
-      );
+      )
     })
-  );
+  )
 
-  self.clients.claim();
-});
+  self.clients.claim()
+})
 
-self.addEventListener("fetch", (event) => {
-  if (event.request.method !== "GET") {
-    return;
+self.addEventListener('fetch', (event) => {
+  if (event.request.method !== 'GET') {
+    return
   }
 
   event.respondWith(
     caches.match(event.request).then((cachedResponse) => {
       if (cachedResponse) {
-        return cachedResponse;
+        return cachedResponse
       }
 
-      return fetch(event.request);
+      return fetch(event.request)
     })
-  );
-});
+  )
+})

@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Laporan - Dompet Harian</title>
+    <link rel="stylesheet" href="./css/style.css" />
+  </head>
+
+  <body>
+    <main class="app">
+      <header class="app-header">
+        <div>
+          <p class="eyebrow">Offline-first PWA</p>
+          <h1>Laporan</h1>
+        </div>
+
+        <div class="status-group">
+          <div id="connectionStatus" class="status offline">Offline</div>
+          <div id="syncStatus" class="status sync-idle">Sync idle</div>
+        </div>
+      </header>
+
+      <section class="card">
+        <div class="section-header">
+          <h2 class="section-title">Laporan Bulanan</h2>
+
+          <button id="exportCsvButton" class="secondary-button" type="button">Export CSV</button>
+        </div>
+
+        <div class="form-group report-filter">
+          <label for="reportMonth">Pilih bulan</label>
+          <input type="month" id="reportMonth" />
+        </div>
+
+        <div class="monthly-summary">
+          <div class="mini-card">
+            <p>Total bulan ini</p>
+            <strong id="monthlyTotal">Rp0</strong>
+          </div>
+
+          <div class="mini-card">
+            <p>Jumlah transaksi</p>
+            <strong id="monthlyCount">0</strong>
+          </div>
+        </div>
+
+        <div class="report-block">
+          <h3>Rekap per Kategori</h3>
+          <div id="categorySummary" class="category-summary">
+            <p class="empty-state">Belum ada data bulan ini.</p>
+          </div>
+        </div>
+
+        <div class="report-block">
+          <h3>Tren Harian</h3>
+          <div id="dailyTrend" class="daily-trend">
+            <p class="empty-state">Belum ada data bulan ini.</p>
+          </div>
+        </div>
+
+        <div class="report-block">
+          <h3>Daftar Transaksi Bulan Ini</h3>
+          <div id="monthlyExpenseList" class="expense-list">
+            <p class="empty-state">Belum ada transaksi bulan ini.</p>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <nav class="bottom-nav">
+      <a href="index.html">
+        <span>🏠</span>
+        <small>Home</small>
+      </a>
+
+      <a href="reports.html" class="active">
+        <span>📊</span>
+        <small>Laporan</small>
+      </a>
+
+      <a href="budget.html">
+        <span>💰</span>
+        <small>Budget</small>
+      </a>
+
+      <a href="categories.html">
+        <span>🏷️</span>
+        <small>Kategori</small>
+      </a>
+
+      <a href="reminder.html">
+        <span>🔔</span>
+        <small>Reminder</small>
+      </a>
+    </nav>
+
+    <script src="./js/db.js"></script>
+    <script src="./js/sync.js"></script>
+    <script src="./js/app.js"></script>
+    <script src="./js/navigation.js"></script>
+  </body>
+</html>
