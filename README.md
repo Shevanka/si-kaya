@@ -14,6 +14,8 @@ A modern offline-first Progressive Web App (PWA) for personal expense tracking.
   - Category
   - Note
 - Automatic category suggestions from note keywords
+- **Budget Bulanan (Monthly Budget)**: Set monthly budget limits and monitor status
+- **Pengingat Harian (Daily Reminder)**: Schedule and toggle daily push notifications
 - Monthly reports with:
   - Total spending
   - Transaction count
@@ -44,14 +46,21 @@ A modern offline-first Progressive Web App (PWA) for personal expense tracking.
 
 ```text
 si-kaya/
+├── .gitignore
+├── package.json
+├── package-lock.json
+├── vercel.json
 ├── backend/
 │   ├── app.py
 │   ├── database.db
-│   └── requirements.txt
+│   ├── requirements.txt
+│   ├── Procfile
+│   └── backend.bat
 └── frontend/
     ├── index.html
     ├── manifest.json
     ├── service-worker.js
+    ├── frontend.bat
     ├── css/
     └── js/
 ```
@@ -220,6 +229,20 @@ http://localhost:8000
 - CORS is enabled for frontend-backend communication
 - The service worker caches key frontend files for offline access
 - The app is intended for a single-user personal finance workflow
+
+## Deployment
+
+The application is split into a frontend static PWA and a Python backend service:
+
+### Frontend (Vercel)
+The frontend is deployed on Vercel using the configuration defined in `vercel.json`.
+- It routes all navigation paths to the frontend directory to maintain proper routing.
+- The `vercel.json` file uses standard schema tags (the legacy `public` property is excluded to avoid schema validation errors).
+
+### Backend (Railway)
+The backend is deployed on Railway from the `/backend` directory:
+- **Root Directory**: In the Railway service settings, the **Root Directory** must be configured to `/backend`. This ensures that Railway builds only the backend folder using Python (`requirements.txt`).
+- **Startup**: The application relies on `gunicorn` to start up. The `Procfile` executes `gunicorn --bind 0.0.0.0:$PORT app:app` to dynamically bind to Railway's assigned port.
 
 ## Offline Usage
 
