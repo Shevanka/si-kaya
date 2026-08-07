@@ -264,4 +264,5 @@ Possible enhancements:
 
 ## License
 
-No license has been specified for this repository yet.
+This project is licensed under the MIT License - see the [LICENSE](file:///D:/Coding/Github/si-kaya/LICENSE) file for details.
+
